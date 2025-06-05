@@ -10,9 +10,10 @@
       "request": "launch",
       "module": "src.convert_to_json",
       "args": [
-        "-i", "../annoq-data-builder/wgsa_add/output/test_vcfs/chr1.vcf",
-        "-o", "output/test_vcfs/chr1.vcf",
-        "--es_index", "annoq-annotations-v2",
+      //  "-i", "../annoq-data-builder/wgsa_add/output/test_vcfs/chr1.vcf",
+      "-i", "../annoq-data-builder/wgsa_add/output/top_med_test/chr6_test.vcf",
+        "-o", "../annoq-database/output/top_med_test/",
+        "--es_index", "annoq-annotations-v4",
         "--doc_type_file", "data/doc_type.pkl"
       ],
       "console": "integratedTerminal",
@@ -21,5 +22,19 @@
           "PYTHONPATH": "${workspaceFolder}"
       }
   },
+  {
+    "name": "Python: Debug output file processing order",
+    "type": "python",
+    "request": "launch",
+    "module": "src.output_file_order",
+    "args": [
+    "/home/muruganu/projects/temp/annoq-database/output/top_med_2"
+    ],
+    "console": "integratedTerminal",
+    "cwd": "${workspaceFolder}",
+    "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+    }
+  }
   ]
 }
