@@ -22,6 +22,8 @@ logging.basicConfig(
 def load_json(directory):
     start_time = time.time()
     for root, dirs, files in os.walk(directory, topdown=True):
+        # Sort the directory names
+        dirs.sort() 
         # Sort the files list in place
         files.sort()
         for name in files:
