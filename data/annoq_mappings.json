@@ -120,6 +120,15 @@
         }
       }
     },
+    "enhancer_linked_assay": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 10000
+        }
+      }
+    },
     "enhancer_linked_genes": {
       "type": "text",
       "fields": {
