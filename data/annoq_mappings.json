@@ -4694,6 +4694,24 @@
           "ignore_above": 10000
         }
       }
+    },
+    "Mapped_in_HRC": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 10000
+        }
+      }
+    },
+    "HRC_rs_dbSNP151": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 10000
+        }
+      }
     }
   }
 }
