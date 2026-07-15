@@ -49,9 +49,9 @@ def bulk_load(directory):
 
 def bulk_load_streaming(directory):
     try:
-        for success, info in helpers.streaming_bulk(es, load_json(directory), index=settings.ANNOQ_ANNOTATIONS_INDEX, chunk_size=5000, request_timeout=1000):
-        # May need to update chunk size for larger number of columns
-        # for success, info in helpers.streaming_bulk(es, load_json(directory), index=settings.ANNOQ_ANNOTATIONS_INDEX, chunk_size=50, request_timeout=1000):        
+        # chunk_size is configurable via ANNOQ_ES_BULK_CHUNK_SIZE (default 5000 for prod's large
+        # heap); lower it for a small-heap local node with wide (~700-field) docs.
+        for success, info in helpers.streaming_bulk(es, load_json(directory), index=settings.ANNOQ_ANNOTATIONS_INDEX, chunk_size=settings.ANNOQ_ES_BULK_CHUNK_SIZE, request_timeout=1000):
             if not success:
                 logging.error('A document failed:', info)
             #else:
