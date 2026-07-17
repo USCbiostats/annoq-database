@@ -82,7 +82,7 @@ This tool show instructions how to use a set of bash and Python scripts designed
 ### Dependents on two data files
 
 * ./data/doc_type.pkl
-* ./data/annoq_mapping.json
+* ./data/annoq_mappings.json
 
 ### Prerequisites
 
@@ -128,11 +128,54 @@ The index_es_json Python module indexes JSON documents into the specified Elasti
 python3 -m src.index_es_json "/path/to/input_directory"
 ```
 
+> **Important — the load target comes from the environment, not the CLI.**
+> `index_es_json` bulk-loads into the index named by `ANNOQ_ANNOTATIONS_INDEX` in `.env`
+> (see `src/config/settings.py`), **not** a command-line argument. It must be set to the same
+> name you passed to `reinit --index_name`, or the documents will be created in a different
+> index than the one you just initialized. (If the input JSON records carry an embedded
+> `_index`, Elasticsearch's bulk API routes them to that index — keep it consistent with `.env`.)
+
 ## Detailed Steps
 
-Prepare Index Mappings and Settings: Create JSON files containing your index mappings and settings.
-Index Initialization: Use the reinit script to create or recreate the index with the specified mappings and settings.
-Document Indexing: Use the index_es_json script to bulk load documents into the index from the specified directory.
+Run the index initialization and the document load as **two separate commands** (this mirrors the
+production flow, where `scripts/run_es_job.sh` performs the same two steps in sequence):
+
+1. **Prepare mappings and settings** — `data/annoq_mappings.json` and `data/annoq_settings.json`
+   are generated upstream in `annoq-data-builder` from `annoq-site/metadata/annotation_tree.csv`.
+2. **Set the target index in `.env`** — `ANNOQ_ANNOTATIONS_INDEX=<index_name>` (and
+   `ANNOQ_ES_URL`).
+3. **Initialize the index** (deletes then recreates it with the mappings + settings):
+
+   ```bash
+   python -m src.reinit \
+     --index_name <index_name> \
+     --mappings_file data/annoq_mappings.json \
+     --settings_file data/annoq_settings.json
+   ```
+
+4. **Load the documents** into that same index:
+
+   ```bash
+   python -m src.index_es_json <input_dir>
+   ```
+
+5. **Verify:**
+
+   ```bash
+   curl -s "$ANNOQ_ES_URL/<index_name>/_refresh"
+   curl -s "$ANNOQ_ES_URL/<index_name>/_count?pretty"
+   ```
+
+### Worked example — chr18 HRC-mapping feasibility test
+
+```bash
+# .env: ANNOQ_ANNOTATIONS_INDEX=annoq-annotations-tm-hrc-test-20260709
+python -m src.reinit \
+  --index_name annoq-annotations-tm-hrc-test-20260709 \
+  --mappings_file data/annoq_mappings.json \
+  --settings_file data/annoq_settings.json
+python -m src.index_es_json output/tm-hrc-topmed-test-20260709/chr18_5000.vcf
+```
 
 Logging
 The index_es_json script logs its progress and any errors encountered during the indexing process. Check the logfile.log for details.
