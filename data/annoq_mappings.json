@@ -30,6 +30,15 @@
         }
       }
     },
+    "chr_pos": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 10000
+        }
+      }
+    },
     "enhancer_linked_GO_biological_process_complete_list_id": {
       "type": "text",
       "fields": {
@@ -3123,9 +3132,6 @@
         }
       }
     },
-    "MutationAssessor_rankscore": {
-      "type": "float"
-    },
     "MutationAssessor_score": {
       "type": "text",
       "fields": {
@@ -4611,6 +4617,9 @@
         }
       }
     },
+    "MutationAssessor_rankscore": {
+      "type": "float"
+    },
     "MetaRNN_score": {
       "type": "text",
       "fields": {
@@ -4704,7 +4713,16 @@
         }
       }
     },
-    "HRC_rs_dbSNP151": {
+    "HRC_chr_pos": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 10000
+        }
+      }
+    },
+    "HRC_chr_pos_ref_alt": {
       "type": "text",
       "fields": {
         "keyword": {
