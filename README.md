@@ -141,7 +141,10 @@ Run the index initialization and the document load as **two separate commands** 
 production flow, where `scripts/run_es_job.sh` performs the same two steps in sequence):
 
 1. **Prepare mappings and settings** — `data/annoq_mappings.json` and `data/annoq_settings.json`
-   are generated upstream in `annoq-data-builder` from `annoq-site/metadata/annotation_tree.csv`.
+   are generated upstream in `annoq-data-builder` from the annotation-tree CSV, which lives in
+   **both site repos** until the switchover: `annoq-site/metadata/annotation_tree.csv`
+   (authoritative until [annoq-site#78](https://github.com/USCbiostats/annoq-site/issues/78) merges to `master`) and
+   `annoq-site-v2/metadata/annotation_tree.csv`.
 2. **Set the target index in `.env`** — `ANNOQ_ANNOTATIONS_INDEX=<index_name>` (and
    `ANNOQ_ES_URL`).
 3. **Initialize the index** (deletes then recreates it with the mappings + settings):
