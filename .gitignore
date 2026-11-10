@@ -143,3 +143,5 @@ larger_json/
 input/
 output/
 slurm/
+# local backup of an older docker-compose configuration
+docker-compose.yml.orig
