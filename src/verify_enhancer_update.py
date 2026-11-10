@@ -1,6 +1,8 @@
 """Verify an incremental PEREGRINE update against Elasticsearch.
 
-  snapshot : save the current _source of every document listed in the delta (run BEFORE updating)
+  snapshot : save the current _source of every document listed in the delta (run BEFORE updating),
+             and pre-check that the update would not remove any item the index holds now and would
+             not change enhancer_linked_enhancer (exit code 2 if it would, or if documents are missing)
   check    : after updating, confirm for every listed document that
                - the 12 enhancer fields equal the delta values (compared as ';' sets;
                  empty in the delta => field absent), and
@@ -40,6 +42,29 @@ def delta_rows(args):
     return rows
 
 
+def precheck(rows, docs):
+    """Compare what the index holds now with the delta (the values after the update).
+    For an additions-only update every current item must still be present afterwards, and
+    enhancer_linked_enhancer must not change. Returns the number of problem documents."""
+    would_lose = enhancer_differs = up_to_date = 0
+    for i, src in docs.items():
+        if src is None:
+            continue
+        row = rows[i]
+        lost = [f for f in ENHANCER_FIELDS if not to_set(src.get(f)) <= to_set(row[f])]
+        if lost:
+            would_lose += 1
+            if would_lose <= 10:
+                print("  WOULD REMOVE existing items:", i, lost[:5])
+        if to_set(src.get("enhancer_linked_enhancer")) != to_set(row["enhancer_linked_enhancer"]):
+            enhancer_differs += 1
+        if all(to_set(src.get(f)) == to_set(row[f]) for f in ENHANCER_FIELDS):
+            up_to_date += 1
+    print(f"Pre-check: would_remove_existing_items={would_lose} enhancer_linked_enhancer_differs={enhancer_differs} "
+          f"already_up_to_date={up_to_date}")
+    return would_lose + enhancer_differs
+
+
 def snapshot(args):
     rows = delta_rows(args)
     docs = fetch(list(rows))
@@ -51,6 +76,10 @@ def snapshot(args):
     print(f"Snapshot of {len(docs) - len(missing)} documents written to {args.out}; {len(missing)} not in index")
     for i in missing[:20]:
         print("  missing:", i)
+    problems = precheck(rows, docs)
+    if problems or missing:
+        print("STOP: the index does not match the data the delta was computed from; do not apply this update")
+        sys.exit(2)
 
 
 def check(args):
